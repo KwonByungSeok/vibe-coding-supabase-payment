@@ -80,7 +80,7 @@ export default function GlossaryCards() {
             >
               <div className="magazine-card-image">
                 <img 
-                  src={magazine.image_url}
+                  src={magazine.image_url || undefined}
                   alt={magazine.title}
                 />
                 <div className={`magazine-card-category ${getCategoryColor(magazine.category)}`}>

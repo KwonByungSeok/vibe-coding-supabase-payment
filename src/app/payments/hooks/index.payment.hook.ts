@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { requestIssueBillingKey, BillingKeyMethod, PgProvider } from '@portone/browser-sdk/v2';
+import { requestIssueBillingKey, BillingKeyMethod } from '@portone/browser-sdk/v2';
 
 interface UsePaymentReturn {
   isLoading: boolean;
