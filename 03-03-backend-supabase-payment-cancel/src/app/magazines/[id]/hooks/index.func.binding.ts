@@ -35,35 +35,15 @@ export function useMagazineDetail(id: string): UseMagazineDetailResult {
           throw new Error('Magazine not found');
         }
 
-        // 1-2) 썸네일 URL 생성 (Supabase Image Transformation)
+        // 1-2) 이미지 URL 가공
         let thumbnailUrl = data.image_url;
-        if (data.image_url) {
-          // Storage 경로에서 파일 경로 추출
-          // 예: https://xxx.supabase.co/storage/v1/object/public/vibe-coding-storage/path/to/file.jpg
-          // 또는 storage 경로만: path/to/file.jpg
-          const bucketName = 'vibe-coding-storage';
-          
-          // 이미 전체 URL인지, 아니면 경로만 있는지 확인
-          let filePath = data.image_url;
-          if (data.image_url.includes('/storage/v1/object/public/')) {
-            // 전체 URL에서 파일 경로 추출
-            const parts = data.image_url.split(`/storage/v1/object/public/${bucketName}/`);
-            if (parts.length > 1) {
-              filePath = parts[1];
-            }
+        if (thumbnailUrl) {
+          const bucket = 'vibe-coding-storage';
+          if (thumbnailUrl.includes('/render/image/')) {
+            thumbnailUrl = thumbnailUrl.replace('/render/image/', '/object/').split('?')[0];
+          } else if (!thumbnailUrl.startsWith('http')) {
+            thumbnailUrl = supabase.storage.from(bucket).getPublicUrl(thumbnailUrl).data.publicUrl;
           }
-          
-          // getPublicUrl with Image Transformation
-          const { data: urlData } = supabase.storage
-            .from(bucketName)
-            .getPublicUrl(filePath, {
-              transform: {
-                width: 852,
-                resize: 'contain'
-              }
-            });
-          
-          thumbnailUrl = urlData.publicUrl;
         }
 
         // 1-3) 실제 데이터로 교체
