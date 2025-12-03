@@ -6,14 +6,10 @@ import { usePayment } from "./hooks/index.payment.hook";
 
 export default function GlossaryPayments() {
   const router = useRouter();
-  const { isLoading, requestBillingKey } = usePayment();
+  const { handleSubscribe } = usePayment();
 
   const handleNavigateToList = () => {
     router.push('/magazines');
-  };
-
-  const handleSubscribe = () => {
-    requestBillingKey();
   };
 
   return (
@@ -72,9 +68,8 @@ export default function GlossaryPayments() {
             <button 
               className="payment-subscribe-button"
               onClick={handleSubscribe}
-              disabled={isLoading}
             >
-              {isLoading ? '처리 중...' : '구독하기'}
+              구독하기
             </button>
           </div>
         </div>

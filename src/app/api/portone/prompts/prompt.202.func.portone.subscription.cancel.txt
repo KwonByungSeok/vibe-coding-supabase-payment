@@ -1,0 +1,96 @@
+==============================================
+
+구현될 ROUTE 경로: src/app/api/portone/route.ts
+
+==============================================
+
+핵심요구사항) 다음의 API를 portone v2을 연동하여 step-by-step 으로 구현하고, 적용 결과를 체크리스트로 반환할 것.
+                1. 상세 구현 정보
+                        1-1) 메서드: POST
+                        1-2) 요청데이터: {
+                                payment_id: string
+                                status: "Paid" | "Cancelled"
+                        }
+                        1-3) 응답데이터: {
+                                success: boolean
+                        }
+
+                2. Paid 시나리오
+                        2-1) 구독결제완료시나리오
+                                2-1-1) paymentId의 결제정보를 조회할 것.
+                                        - API엔드포인트: https://api.portone.io/payments/{payment_id}
+                                        - 메서드: GET
+
+                                2-1-2) supabase의 테이블에 다음을 등록할 것.
+                                        - payment
+                                                - transaction_key: 결제정보.paymentId
+                                                - amount: 결제정보.amount
+                                                - status: "Paid"
+                                                - start_at: 현재시각
+                                                - end_at: 현재시각 + 30일
+                                                - end_grace_at: end_at + 1일 밤 11:59:59(한국시간 기준) => UTC로 변환하여 저장
+                                                - next_schedule_at: end_at + 1일 오전 10시~11시(한국시간 기준) 사이 임의 시각 => UTC로 변환하여 저장
+                                                - next_schedule_id: 임의로 생성한 UUID
+
+                        2-2) 다음달구독예약시나리오
+                                2-2-1) 포트원에 다음달 구독결제를 예약할 것.
+                                        - API엔드포인트: https://api.portone.io/payments/${next_schedule_id}/schedule
+                                        - 메서드: POST
+                                        - 바디: {
+                                                payment: {
+                                                        billingKey: 결제정보.billingKey,
+                                                        orderName: 결제정보.orderName,
+                                                        customer: {
+                                                                id: 결제정보.customer.id
+                                                        }
+                                                        amount: {
+                                                                total: 결제정보.amount
+                                                        },
+                                                        currency: "KRW"
+                                                },
+                                                timeToPay: next_schedule_at
+                                        };
+
+                3. Cancelled 시나리오
+                        3-1) 구독결제취소시나리오
+                                3-1-1) supabase의 테이블에서 다음을 조회할 것.
+                                        - 테이블: payment 
+                                        - 조건: transaction_key === payment_id
+
+                                3-1-2) supabase의 테이블에 다음을 등록할 것.
+                                        - payment
+                                                - transaction_key: 조회결과.transaction_key
+                                                - amount: -조회결과.amount
+                                                - status: "Cancel"
+                                                - start_at: 조회결과.start_at
+                                                - end_at: 조회결과.end_at
+                                                - end_grace_at: 조회결과.end_grace_at
+                                                - next_schedule_at: 조회결과.next_schedule_at
+                                                - next_schedule_id: 조회결과.next_schedule_id
+
+                        3-2) 다음달구독예약취소시나리오
+                                3-2-1) 결제정보를 조회할 것.
+                                        - API엔드포인트: https://api.portone.io/payments/{payment_id}
+                                        - 메서드: GET
+
+                                3-2-2) 예약된 결제정보를 조회할 것.
+                                        - API엔드포인트: https://api.portone.io/payment-schedules
+                                        - 메서드: GET
+                                        - 바디(쿼리스트링 X): {
+                                                filter: {
+                                                        billingKey: 결제정보.billingKey,
+                                                        from: 조회결과.next_schedule_at - 1일
+                                                        until: 조회결과.next_schedule_at + 1일
+                                                }
+                                        }
+                                        - GET에서 바디를 포함하는 것은 표준이 아니므로 fetch 대신 axios를 사용할 것.
+
+                                3-2-3) 예약된 결제정보의 조회결과로 반환된 items를 순회하여 사전에 예약한 next_schedule_id와 일치하는 객체를 추출할 것.
+                                        - 조건: items.paymentId === 조회결과.next_schedule_id
+
+                                3-2-4) 포트원에 다음달 구독예약을 취소할 것.
+                                        - API엔드포인트: https://api.portone.io/payment-schedules
+                                        - 메서드: DELETE
+                                        - 바디: {
+                                                scheduleIds: [추출된 items.id]
+                                        };

@@ -1,91 +1,88 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-// 요청 데이터 타입 정의
-interface PaymentRequest {
-  billingKey: string;
-  orderName: string;
-  amount: number;
-  customer: {
-    id: string;
-  };
-}
-
-// 응답 데이터 타입 정의
-interface PaymentResponse {
-  success: boolean;
-}
-
+/**
+ * POST /api/payments
+ * PortOne v2를 사용한 빌링키 기반 정기결제 API
+ */
 export async function POST(request: NextRequest) {
   try {
-    // 요청 본문 파싱
-    const body: PaymentRequest = await request.json();
+    // 1. 요청 데이터 파싱
+    const body = await request.json();
+    const { billingKey, orderName, amount, customer } = body;
 
-    // 필수 필드 검증
-    if (!body.billingKey || !body.orderName || !body.amount || !body.customer?.id) {
+    // 1-1. 필수 데이터 검증
+    if (!billingKey || !orderName || !amount || !customer?.id) {
       return NextResponse.json(
-        { success: false, error: '필수 필드가 누락되었습니다.' },
+        { success: false, error: "필수 데이터가 누락되었습니다." },
         { status: 400 }
       );
     }
 
-    // Portone Secret Key (환경 변수에서 가져오기)
-    const portoneSecretKey = process.env.PORTONE_API_SECRET;
-    if (!portoneSecretKey) {
+    // 1-2. 환경 변수 확인
+    const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET;
+    if (!PORTONE_API_SECRET) {
       return NextResponse.json(
-        { success: false, error: 'Portone Secret Key가 설정되지 않았습니다.' },
+        { success: false, error: "PORTONE_API_SECRET이 설정되지 않았습니다." },
         { status: 500 }
       );
     }
 
-    // paymentId 생성 (UUID 형식)
-    const paymentId = crypto.randomUUID();
+    // 2. 고유한 paymentId 생성 (타임스탬프 + 랜덤)
+    const paymentId = `payment_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 9)}`;
 
-    // Portone API 엔드포인트
-    const portoneApiUrl = `https://api.portone.io/payments/${encodeURIComponent(paymentId)}/billing-key`;
+    // 3. PortOne API로 빌링키 결제 요청
+    const paymentResponse = await fetch(
+      `https://api.portone.io/payments/${encodeURIComponent(
+        paymentId
+      )}/billing-key`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `PortOne ${PORTONE_API_SECRET}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          billingKey,
+          orderName,
+          customer: {
+            id: customer.id,
+          },
+          amount: {
+            total: amount,
+          },
+          currency: "KRW",
+        }),
+      }
+    );
 
-    // Portone API 요청 바디
-    const portoneRequestBody = {
-      billingKey: body.billingKey,
-      orderName: body.orderName,
-      amount: {
-        total: body.amount,
-      },
-      customer: {
-        id: body.customer.id,
-      },
-      currency: 'KRW',
-    };
+    // 4. PortOne 응답 확인
+    const paymentResult = await paymentResponse.json();
 
-    // Portone API 호출
-    const portoneResponse = await fetch(portoneApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `PortOne ${portoneSecretKey}`,
-      },
-      body: JSON.stringify(portoneRequestBody),
-    });
-
-    // Portone API 응답 확인
-    if (!portoneResponse.ok) {
-      const errorData = await portoneResponse.json().catch(() => ({}));
-      console.error('Portone API 오류:', errorData);
+    if (!paymentResponse.ok) {
+      console.error("PortOne 결제 실패:", paymentResult);
       return NextResponse.json(
-        { success: false, error: '결제 요청에 실패했습니다.' },
-        { status: portoneResponse.status }
+        {
+          success: false,
+          error: "결제 처리 중 오류가 발생했습니다.",
+          details: paymentResult,
+        },
+        { status: paymentResponse.status }
       );
     }
 
-    // 성공 응답 반환 (DB 저장 없음)
-    const response: PaymentResponse = {
+    // 5. 성공 응답 반환 (DB에 저장하지 않음)
+    return NextResponse.json({
       success: true,
-    };
-
-    return NextResponse.json(response, { status: 200 });
+    });
   } catch (error) {
-    console.error('결제 API 오류:', error);
+    console.error("API 처리 중 오류:", error);
     return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다.' },
+      {
+        success: false,
+        error: "서버 오류가 발생했습니다.",
+      },
       { status: 500 }
     );
   }

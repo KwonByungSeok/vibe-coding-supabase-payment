@@ -33,36 +33,20 @@ export const useMagazines = () => {
           throw fetchError;
         }
 
-        // 조회된 image_url을 썸네일 URL로 변환
-        const magazinesWithThumbnails = (data || []).map((magazine: MagazineItem) => {
-          // image_url이 null인 경우 그대로 반환
-          if (!magazine.image_url) {
-            return magazine;
+        // image_url 가공 – render → object 변환, 경로는 getPublicUrl 사용, 변환 옵션 없음
+        const magazinesWithThumbnails = (data ?? []).map((magazine) => {
+          if (!magazine.image_url) return magazine;
+
+          const bucket = 'vibe-coding-storage';
+          let url = magazine.image_url;
+
+          if (url.includes('/render/image/')) {
+            url = url.replace('/render/image/', '/object/').split('?')[0];
+          } else if (!url.startsWith('http')) {
+            url = supabase.storage.from(bucket).getPublicUrl(url).data.publicUrl;
           }
 
-          const bucketName = 'vibe-coding-storage';
-          let imageUrl = magazine.image_url;
-
-          // render URL이면 무조건 object URL로 변환
-          if (imageUrl.includes('/render/image/')) {
-            imageUrl = imageUrl.replace('/render/image/', '/object/').split('?')[0];
-          } 
-          // 전체 URL이지만 render가 아닌 경우 그대로 사용
-          else if (imageUrl.startsWith('http')) {
-            imageUrl = imageUrl;
-          } 
-          // 경로만 있는 경우 getPublicUrl로 변환
-          else {
-            const { data: urlData } = supabase.storage
-              .from(bucketName)
-              .getPublicUrl(imageUrl);
-            imageUrl = urlData.publicUrl;
-          }
-
-          return {
-            ...magazine,
-            image_url: imageUrl
-          };
+          return { ...magazine, image_url: url };
         });
 
         setMagazines(magazinesWithThumbnails);

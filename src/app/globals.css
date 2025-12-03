@@ -1936,3 +1936,301 @@ body {
     color: #d1d1d1;
   }
 }
+
+/* Mypage Styles */
+.mypage-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.mypage-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 32px;
+  transition: all 0.2s;
+}
+
+.mypage-back-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.mypage-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.mypage-header h1 {
+  margin: 0 0 8px 0;
+}
+
+.mypage-header-desc {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.mypage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* 프로필 카드 */
+.mypage-profile-card {
+  background: var(--background);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  height: fit-content;
+  width: 100%;
+}
+
+.mypage-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 16px;
+  border: 4px solid #f3f4f6;
+}
+
+.mypage-name {
+  margin: 0 0 8px 0;
+  color: var(--foreground);
+}
+
+.mypage-bio-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.mypage-join-date {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 구독 플랜 카드 */
+.mypage-card-title {
+  margin: 0 0 24px 0;
+  color: var(--foreground);
+}
+
+.mypage-subscription-card {
+  background: var(--background);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+}
+
+.mypage-subscription-card.active {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+.mypage-subscription-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.mypage-badge-active {
+  padding: 6px 14px;
+  background: #10b981;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mypage-subscription-active {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mypage-plan-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #047857;
+  margin-bottom: 4px;
+}
+
+.mypage-plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mypage-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #065f46;
+}
+
+.mypage-feature-item svg {
+  flex-shrink: 0;
+}
+
+.mypage-cancel-btn {
+  align-self: flex-start;
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mypage-cancel-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.mypage-subscription-inactive {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mypage-unsubscribed-message {
+  font-size: 18px;
+  color: #374151;
+  text-align: center;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.mypage-plan-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.mypage-preview-item {
+  font-size: 14px;
+  color: #374151;
+}
+
+.mypage-subscribe-btn {
+  align-self: center;
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mypage-subscribe-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mypage-back-btn {
+    border-color: #4b5563;
+  }
+  
+  .mypage-back-btn:hover {
+    background: #1f2937;
+    border-color: #6b7280;
+  }
+  
+  .mypage-header-desc {
+    color: #9ca3af;
+  }
+  
+  .mypage-profile-card,
+  .mypage-subscription-card {
+    border-color: #374151;
+  }
+  
+  .mypage-avatar {
+    border-color: #374151;
+  }
+  
+  .mypage-bio-text {
+    color: #9ca3af;
+  }
+  
+  .mypage-join-date {
+    color: #6b7280;
+    border-color: #374151;
+    background: #1f2937;
+  }
+  
+  .mypage-subscription-card.active {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    border-color: #10b981;
+  }
+  
+  .mypage-plan-name {
+    color: #86efac;
+  }
+  
+  .mypage-feature-item {
+    color: #a7f3d0;
+  }
+  
+  .mypage-cancel-btn {
+    background: #1f2937;
+    border-color: #374151;
+    color: #9ca3af;
+  }
+  
+  .mypage-cancel-btn:hover {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+  
+  .mypage-unsubscribed-message {
+    color: #9ca3af;
+    background: #1f2937;
+  }
+  
+  .mypage-plan-preview {
+    background: #1f2937;
+  }
+  
+  .mypage-preview-item {
+    color: #d1d5db;
+  }
+}

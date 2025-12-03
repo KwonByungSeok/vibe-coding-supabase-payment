@@ -35,25 +35,14 @@ export function useMagazineDetail(id: string): UseMagazineDetailResult {
           throw new Error('Magazine not found');
         }
 
-        // 1-2) 이미지 URL 처리
+        // 1-2) 이미지 URL 가공
         let thumbnailUrl = data.image_url;
-        if (data.image_url) {
-          const bucketName = 'vibe-coding-storage';
-          
-          // render URL이면 무조건 object URL로 변환
-          if (data.image_url.includes('/render/image/')) {
-            thumbnailUrl = data.image_url.replace('/render/image/', '/object/').split('?')[0];
-          } 
-          // 전체 URL이지만 render가 아닌 경우 그대로 사용
-          else if (data.image_url.startsWith('http')) {
-            thumbnailUrl = data.image_url;
-          } 
-          // 경로만 있는 경우 getPublicUrl로 변환
-          else {
-            const { data: urlData } = supabase.storage
-              .from(bucketName)
-              .getPublicUrl(data.image_url);
-            thumbnailUrl = urlData.publicUrl;
+        if (thumbnailUrl) {
+          const bucket = 'vibe-coding-storage';
+          if (thumbnailUrl.includes('/render/image/')) {
+            thumbnailUrl = thumbnailUrl.replace('/render/image/', '/object/').split('?')[0];
+          } else if (!thumbnailUrl.startsWith('http')) {
+            thumbnailUrl = supabase.storage.from(bucket).getPublicUrl(thumbnailUrl).data.publicUrl;
           }
         }
 
