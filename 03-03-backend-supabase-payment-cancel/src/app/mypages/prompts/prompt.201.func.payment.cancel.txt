@@ -1,0 +1,22 @@
+==============================================
+
+참고할 API  경로: src/app/api/payments/cancel/route.ts
+참고할 PAGE 경로: src/app/mypages/page.tsx
+구현될 HOOK 경로: src/app/mypages/hooks/index.payment.cancel.hook.ts
+
+==============================================
+
+핵심요구사항) 다음의 기능을 step-by-step 으로 구현하고, 적용 결과를 체크리스트로 반환할 것.
+            1. 구독취소시나리오
+                1-1) 구독취소를 누르면 구독취소 API를 요청할 것.
+                        - API엔드포인트: src/app/api/payments/cancel/route.ts
+                        - 요청데이터: { 
+                                transactionKey
+                        }
+                        - 응답데이터: { 
+                                success: boolean
+                        }
+
+                1-2) 구독취소 이후 로직을 완성할 것.
+                        - 알림메시지: "구독이 취소되었습니다."
+                        - 이동할페이지: "/magazines"
